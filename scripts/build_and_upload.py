@@ -57,7 +57,7 @@ def build():
 def clean_old_versions():
     version_data = make_request(f"{EXTENSIONS_API}/{name}")
 
-    if version_data.get("totalCount") >= 10:
+    if version_data.get("totalCount", 0) >= 10:
         print("Removing oldest version to make room for new...")
         oldest = version_data.get("extensions", [{}])[0]
         make_request(f"{EXTENSIONS_API}/{name}/{oldest.get('version','')}","DELETE")
