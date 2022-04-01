@@ -11,12 +11,18 @@ CREDENTIALS_API = "api/config/v1/credentials"
 def make_request(path: str, method: str="GET", json: dict=None) -> dict:
     url = f"{tenant_url}/{path}"
     header = {'Authorization': f'Api-Token {api_token}'}
-    return requests.request(
+    resp = requests.request(
         url=url,
         method=method, 
         headers=header,
         json=json
-    ).json()
+    )
+    if resp.status_code not in [200, 201, 204]:
+        print("Could not complete request")
+        print(resp.text)
+        raise SystemExit
+
+    return resp.json()
 
 
 def get_token(raw: str) -> dict:
@@ -60,6 +66,7 @@ def upload():
     with open(file=cert_file, mode="r") as f:
         cert_text = f.read()
     certificate = base64.b64encode(cert_text.encode('ascii')).decode('ascii')
+    password = base64.b64encode("password_not_supported".encode('ascii')).decode('ascii')
     
     make_request(CREDENTIALS_API, "POST", {
         "name": "Extension Developer Certificate",
@@ -71,7 +78,7 @@ def upload():
         "scope": "EXTENSION",
         "type": "PUBLIC_CERTIFICATE",
         "certificate": certificate,
-        "password": "password_not_supported",
+        "password": password,
         "certificateFormat": "PEM"
     })
 
