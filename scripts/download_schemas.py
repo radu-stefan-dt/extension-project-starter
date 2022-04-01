@@ -1,46 +1,20 @@
-import os
 import json
 import yaml
-import requests
+from utils import Dynatrace
 
 
-SCHEMAS_API = "api/v2/extensions/schemas"
-
-
-def make_request(path: str) -> dict:
-    url = f"{tenant_url}/{path}"
-    return requests.get(url, headers=header).json()
-
-
-def auth_header(token: str) -> dict:
-    if token.startswith(".Env."):
-        token = os.environ.get(token[5:], "")
-
-    return {"Authorization": f"Api-Token {token}"}
-
-
-def fetch_schemas(target_version: str):
-    versions = make_request(SCHEMAS_API).get("versions", [])
+def get_target_version():
+    versions = dt.make_request(dt.SCHEMAS_API).get("versions", [])
 
     if target_version == "latest":
-        version = versions[-1]
-    else:
-        matches = [v for v in versions if v.startswith(target_version)]
-        if matches:
-            version = matches[0]
-        else:
-            print(f"Target version {target_version} does not exist.")
-            raise SystemExit
-        
-    print(f"Downloading schemas for version {version}")
-
-    files = make_request(f"{SCHEMAS_API}/{version}").get("files", [])
-    for file in files:
-        schema = make_request(f"{SCHEMAS_API}/{version}/{file}")
-        with open(file=f"{download_dir}/{file}", mode="w") as f:
-            json.dump(schema, f, indent=2)
-
-    print("Finished.")
+        return versions[-1]
+    
+    matches = [v for v in versions if v.startswith(target_version)]
+    if matches:
+        return matches[0]
+    
+    print(f"Target version {target_version} does not exist.")
+    raise SystemExit
 
 
 if __name__ == "__main__":
@@ -52,8 +26,19 @@ if __name__ == "__main__":
     target_version = str(config.get("schema_version", "latest"))
     download_dir = config.get("download_folder", "../schemas")
     tenant_url = config["tenant_url"]
-    raw_token = config["api_token"]
-    header = auth_header(raw_token)
+    api_token = config["api_token"]
 
-    # Download all schemas of target version
-    fetch_schemas(target_version)
+    # Get a DT client
+    dt = Dynatrace(tenant_url, api_token)
+
+    version = get_target_version()        
+    print(f"Downloading schemas for version {version}")
+
+    # Download all the schemas
+    files = dt.make_request(f"{dt.SCHEMAS_API}/{version}").get("files", [])
+    for file in files:
+        schema = dt.make_request(f"{dt.SCHEMAS_API}/{version}/{file}")
+        with open(file=f"{download_dir}/{file}", mode="w") as f:
+            json.dump(schema, f, indent=2)
+
+    print("Finished.")

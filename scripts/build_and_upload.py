@@ -1,37 +1,7 @@
 import os
 import yaml
 import glob
-import requests
-import subprocess
-
-
-EXTENSIONS_API = "api/v2/extensions"
-
-
-def make_request(path: str, method: str="GET", json: dict=None) -> dict:
-    url = f"{tenant_url}/{path}"
-    header = {'Authorization': f'Api-Token {api_token}'}
-    return requests.request(
-        url=url,
-        method=method, 
-        headers=header,
-        json=json
-    ).json()
-
-
-def get_token(raw: str) -> dict:
-    if raw.startswith(".Env."):
-        return os.environ.get(raw[5:], "")
-
-    return raw
-
-
-def run_command(command: list):
-    cmd = ["powershell.exe"] if os.name == "nt" else []
-    cmd.extend(command)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in iter(proc.stdout.readline, b''):
-        print(">>> "+line.decode().rstrip())
+from utils import Dynatrace, run_command
 
 
 def get_current_name_and_version():
@@ -55,12 +25,12 @@ def build():
 
 
 def clean_old_versions():
-    version_data = make_request(f"{EXTENSIONS_API}/{name}")
+    version_data = dt.make_request(f"{dt.EXTENSIONS_API}/{name}")
 
     if version_data.get("totalCount", 0) >= 10:
         print("Removing oldest version to make room for new...")
         oldest = version_data.get("extensions", [{}])[0]
-        make_request(f"{EXTENSIONS_API}/{name}/{oldest.get('version','')}","DELETE")
+        dt.make_request(f"{dt.EXTENSIONS_API}/{name}/{oldest.get('version','')}","DELETE")
 
 
 def upload():
@@ -77,8 +47,8 @@ def upload():
 
 def activate():
     print("Activating latest version...")
-    make_request(
-        f"{EXTENSIONS_API}/{name}/environmentConfiguration",
+    dt.make_request(
+        f"{dt.EXTENSIONS_API}/{name}/environmentConfiguration",
         "PUT",
         {"version": version}
     )
@@ -92,7 +62,8 @@ if __name__ == "__main__":
 
     # Set parameters
     tenant_url = config["tenant_url"]
-    api_token = get_token(config["api_token"])
+    api_token = config["api_token"]
+    dt = Dynatrace(tenant_url, api_token)
     name, version = get_current_name_and_version()
 
     # Build extension

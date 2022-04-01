@@ -1,43 +1,6 @@
-import os
 import yaml
 import base64
-import requests
-import subprocess
-
-
-CREDENTIALS_API = "api/config/v1/credentials"
-
-
-def make_request(path: str, method: str="GET", json: dict=None) -> dict:
-    url = f"{tenant_url}/{path}"
-    header = {'Authorization': f'Api-Token {api_token}'}
-    resp = requests.request(
-        url=url,
-        method=method, 
-        headers=header,
-        json=json
-    )
-    if resp.status_code not in [200, 201, 204]:
-        print("Could not complete request")
-        print(resp.text)
-        raise SystemExit
-
-    return resp.json()
-
-
-def get_token(raw: str) -> dict:
-    if raw.startswith(".Env."):
-        return os.environ.get(raw[5:], "")
-
-    return raw
-
-
-def run_command(command: list):
-    cmd = ["powershell.exe"] if os.name == "nt" else []
-    cmd.extend(command)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in iter(proc.stdout.readline, b''):
-        print(">>> "+line.decode().rstrip())
+from utils import Dynatrace, run_command
 
 
 def generate():
@@ -68,7 +31,7 @@ def upload():
     certificate = base64.b64encode(cert_text.encode('ascii')).decode('ascii')
     password = base64.b64encode("password_not_supported".encode('ascii')).decode('ascii')
     
-    make_request(CREDENTIALS_API, "POST", {
+    dt.make_request(dt.CREDENTIALS_API, "POST", {
         "name": "Extension Developer Certificate",
         "description": (
             "A developer's certificate used for signing Extensions 2.0. "
@@ -92,7 +55,8 @@ if __name__ == "__main__":
 
     # Set parameters
     tenant_url = config["tenant_url"]
-    api_token = get_token(config["api_token"])
+    api_token = config["api_token"]
+    dt = Dynatrace(tenant_url, api_token)
 
     # Generate certificates
     generate()
