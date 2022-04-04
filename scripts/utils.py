@@ -25,7 +25,7 @@ class Dynatrace:
         if resp.status_code not in [200, 201, 204]:
             print("Could not complete request")
             print(resp.text)
-            raise SystemExit
+            raise Exception(resp.text)
 
         return resp.json()
 

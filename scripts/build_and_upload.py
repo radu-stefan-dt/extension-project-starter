@@ -25,8 +25,11 @@ def build():
 
 
 def clean_old_versions():
-    version_data = dt.make_request(f"{dt.EXTENSIONS_API}/{name}")
-
+    try:
+        version_data = dt.make_request(f"{dt.EXTENSIONS_API}/{name}")
+    except Exception as e:
+        return
+    
     if version_data.get("totalCount", 0) >= 10:
         print("Removing oldest version to make room for new...")
         oldest = version_data.get("extensions", [{}])[0]
