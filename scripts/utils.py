@@ -11,7 +11,8 @@ class Dynatrace:
 
     def __init__(self, tenant_url: str, token: str):
         self.url = tenant_url
-        self.auth_header = {'Authorization': f'Api-Token {parse_token(token)}'}
+        self.token = parse_token(token)
+        self.auth_header = {'Authorization': f'Api-Token {self.token}'}
 
     def make_request(self, path: str, method: str="GET", json: dict=None) -> dict:
         url = f"{self.url}/{path}"

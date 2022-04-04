@@ -43,7 +43,7 @@ def upload():
     run_command([
         "dt", "extension", "upload",
         "--tenant-url", tenant_url,
-        "--api-token", api_token,
+        "--api-token", dt.token,
         latest_file
     ])
 
