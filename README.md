@@ -9,7 +9,7 @@ This is a template project structure and some convenience scripts for efficientl
 1. **VisualStudio Code** - this repo has been tailored for VisualStudio Code users and a configuration has been added for one of its extensions.
     * VisualStudio Extension for YAML language support
 2. **Python** - the convenience scripts are written in Python
-    * dt cli module is required
+    * [dt-cli](https://github.com/dynatrace-oss/dt-cli) module is required
 3. **Dynatrace** - a Dynatrace SaaS or Managed environment where you're planning to develop Extensions 2.0
 4. **Dynatrace API token** - a Dynatrace API token with appropriate permissions depending on which scripts you're planning to use
 

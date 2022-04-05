@@ -1,25 +1,37 @@
 import yaml
 import base64
-from utils import Dynatrace, run_command
+from dtcli import signing
+from datetime import datetime, timedelta, timezone
+from utils import Dynatrace
 
 
 def generate():
     print("Generating root and developer certificates...")
-    subject = (
-        f"/CN={config.get('common_name', 'SomeDeveloper')}"
-        f"/O={config.get('org_name', 'SomeOrganization')}"
-        f"/OU={config.get('org_unit', 'SomeDepartment')}"
+    cn = config.get('common_name', 'SomeDeveloper')
+    o = config.get('org_name', 'SomeOrganization')
+    ou = config.get('org_unit', 'SomeDepartment')
+
+    root_subject = {"CN": cn, "O": f"{o}Root", "OU": ou }
+    dev_subject = {"CN": cn, "O": f"{o}Developer", "OU": ou }
+
+    expiration = datetime.now(tz=timezone.utc)+timedelta(days=config.get("days_valid", 1095))
+    signing.generate_ca(
+        ca_cert_file_path=config.get("ca_cert_path", "../certs/ca.pem"),
+        ca_key_file_path=config.get("ca_key_path", "../certs/ca.key"),
+        subject=root_subject,
+        not_valid_after=expiration,
+        passphrase=None
     )
-    run_command([
-        "dt", "extension", "gencerts",
-        "--ca-cert", config.get("ca_cert_path", "../certs/ca.pem"),
-        "--ca-key", config.get("ca_key_path", "../certs/ca.key"),
-        "--dev-cert", config.get("dev_cert_path", "../certs/dev.pem"),
-        "--dev-key", config.get("dev_key_path", "../certs/dev.key"),
-        "--ca-subject", subject,
-        "--days-valid", str(config.get('days_valid', 1095)),
-        "--no-dev-passphrase", "--no-ca-passphrase", "--force"
-    ])
+    signing.generate_cert(
+        ca_cert_file_path=config.get("ca_cert_path", "../certs/ca.pem"),
+        ca_key_file_path=config.get("ca_key_path", "../certs/ca.key"),
+        dev_cert_file_path=config.get("dev_cert_path", "../certs/dev.pem"),
+        dev_key_file_path=config.get("dev_cert_path", "../certs/dev.key"),
+        subject=dev_subject,
+        dev_passphrase=None,
+        ca_passphrase=None,
+        not_valid_after=expiration,
+    )
     print("Done.")
 
 

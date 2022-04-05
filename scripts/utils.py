@@ -35,11 +35,3 @@ def parse_token(raw_token: str):
     if raw_token.startswith(".Env."):
         return os.environ.get(raw_token[5:], "")
     return raw_token
-
-
-def run_command(command: list):
-    cmd = ["powershell.exe"] if os.name == "nt" else []
-    cmd.extend(command)
-    proc = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.STDOUT)
-    for line in iter(proc.stdout.readline, b''):
-        print(">>> "+line.decode().rstrip())

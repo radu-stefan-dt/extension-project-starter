@@ -1,7 +1,8 @@
 import os
 import yaml
 import glob
-from utils import Dynatrace, run_command
+from dtcli import building, server_api
+from utils import Dynatrace
 
 
 def get_current_name_and_version():
@@ -13,14 +14,16 @@ def get_current_name_and_version():
 
 def build():
     print(f"Building extension {name} version {version}...")
-    run_command([
-        "dt", "extension", "build",
-        "--extension-directory", "../extension",
-        "--target-directory", "../build",
-        "--certificate", config.get("dev_cert_path", "../certs/dev.pem"),
-        "--private-key", config.get("dev_key_path", "../certs/dev.key"),
-        "--no-dev-passphrase"
-    ])
+    building.build_extension(
+        extension_dir_path="../extension",
+        target_dir_path="../build",
+        extension_zip_path="../extension.zip",
+        extension_zip_sig_path="../extension.zip.sig",
+        certificate_file_path=config.get("dev_cert_path", "../certs/dev.pem"),
+        private_key_file_path=config.get("dev_key_path", "../certs/dev.key"),
+        dev_passphrase=None,
+        keep_intermediate_files=False
+    )
     print("Completed.")
 
 
@@ -40,12 +43,7 @@ def upload():
     print("Uploading to Dynatrace...")
     file_list = glob.glob('../build/*')
     latest_file = max(file_list, key=os.path.getctime)
-    run_command([
-        "dt", "extension", "upload",
-        "--tenant-url", tenant_url,
-        "--api-token", dt.token,
-        latest_file
-    ])
+    server_api.upload(latest_file, dt.url,  dt.token)
 
 
 def activate():
