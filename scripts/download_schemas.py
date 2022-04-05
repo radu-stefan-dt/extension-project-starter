@@ -20,7 +20,7 @@ def get_target_version():
 if __name__ == "__main__":
     # Read config
     with open(file="config.yaml", mode="r") as f:
-        config = yaml.load(f)
+        config = yaml.safe_load(f)
 
     # Set parameters
     target_version = str(config.get("schema_version", "latest"))
