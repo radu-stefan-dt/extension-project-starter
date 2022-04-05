@@ -29,7 +29,7 @@ def build():
 
 def clean_old_versions():
     try:
-        version_data = dt.make_request(f"{dt.EXTENSIONS_API}/{name}")
+        version_data = dt.make_request(f"{dt.EXTENSIONS_API}/{name}").json()
     except Exception as e:
         return
     

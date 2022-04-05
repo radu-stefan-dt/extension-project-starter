@@ -42,13 +42,30 @@ def upload():
         cert_text = f.read()
     certificate = base64.b64encode(cert_text.encode('ascii')).decode('ascii')
     password = base64.b64encode("password_not_supported".encode('ascii')).decode('ascii')
-    
+    name = "Extension Developer Certificate"
+    description = ("A developer's certificate used for signing Extensions 2.0. "
+                   "This was automatically generated using a convenience script.")
+
+    # Check existing and ask about overwrite
+    other_certs = dt.make_request(
+        f"{dt.CREDENTIALS_API}?type=PUBLIC_CERTIFICATE"
+    ).json().get("credentials", [])
+    overwrite = "n"
+    for cert in other_certs:
+        if cert.get("name", "") == name and cert.get("description", "") == description:
+            cert_id = cert.get("id", "")
+            overwrite = input(
+                "\nA certificate with the same name and description already exists. "
+                "Do you want to overwrite it? (Y/N)\n"
+            )
+            break
+
+    if overwrite.lower() == "y":
+        dt.make_request(f"{dt.CREDENTIALS_API}/{cert_id}", "DELETE")
+
     dt.make_request(dt.CREDENTIALS_API, "POST", {
-        "name": "Extension Developer Certificate",
-        "description": (
-            "A developer's certificate used for signing Extensions 2.0. "
-            "This was automatically generated using a convenience script."
-        ),
+        "name": name,
+        "description": description,
         "ownerAccessOnly": True,
         "scope": "EXTENSION",
         "type": "PUBLIC_CERTIFICATE",

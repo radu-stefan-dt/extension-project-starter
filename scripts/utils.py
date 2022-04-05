@@ -27,7 +27,7 @@ class Dynatrace:
             print(resp.text)
             raise Exception(resp.text)
 
-        return resp.json()
+        return resp
 
 
 def parse_token(raw_token: str):

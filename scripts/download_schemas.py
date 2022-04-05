@@ -4,7 +4,7 @@ from utils import Dynatrace
 
 
 def get_target_version():
-    versions = dt.make_request(dt.SCHEMAS_API).get("versions", [])
+    versions = dt.make_request(dt.SCHEMAS_API).json().get("versions", [])
 
     if target_version == "latest":
         return versions[-1]
@@ -35,9 +35,9 @@ if __name__ == "__main__":
     print(f"Downloading schemas for version {version}")
 
     # Download all the schemas
-    files = dt.make_request(f"{dt.SCHEMAS_API}/{version}").get("files", [])
+    files = dt.make_request(f"{dt.SCHEMAS_API}/{version}").json().get("files", [])
     for file in files:
-        schema = dt.make_request(f"{dt.SCHEMAS_API}/{version}/{file}")
+        schema = dt.make_request(f"{dt.SCHEMAS_API}/{version}/{file}").json()
         with open(file=f"{download_dir}/{file}", mode="w") as f:
             json.dump(schema, f, indent=2)
 
