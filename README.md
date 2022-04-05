@@ -31,6 +31,30 @@ This is a template project structure and some convenience scripts for efficientl
     * Convenience scripts to help you automate boring tasks so you can build more and worry less!
     * Scripts can be customized with parameters taken from `config.yaml`
 
+## Getting started
+
+Clone this repository and install python dependencies
+
+```bash
+git clone https://github.com/radu-stefan-dt/extension-project-starter
+cd extension-project-starter
+pip install -r requirements.txt
+```
+
+Change into the scripts directory
+
+```bash
+cd scripts
+```
+
+Modify `config.yaml` and add your Dynatrace Environment URL and API Token.
+
+Run the first scripts
+```bash
+python initialize.py
+python download_schemas.py
+```
+
 ## Convenience scripts
 
 ### [initialize.py](scripts/initialize.py)
