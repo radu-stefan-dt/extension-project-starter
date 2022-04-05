@@ -59,11 +59,15 @@ python download_schemas.py
 
 ### [initialize.py](scripts/initialize.py)
 
+_API permissions needed: `credentialVault.read` and `credentialVault.write`_
+
 This script should only be needed when first starting your work with Extensions 2.0. It does the following:
 * Generate the certificates needed to work with Extensions 2.0
 * Upload the CA certificate to the Dynatrace Credential Vault
 
 ### [build_and_upload.py](scripts/build_and_upload.py)
+
+_API permissions needed: `extensions.read` and `extensions.write`_
 
 This script should be used every time an update should be built and published to Dynatrace. It does the following:
 * Package and sign your Extension, producing a .zip archive in the build folder
@@ -72,6 +76,8 @@ This script should be used every time an update should be built and published to
 * Activate the latest extension version
 
 ### [download_schemas.py](scripts/download_schemas.py)
+
+_API permissions needed: `extensions.read`_
 
 This script should only be needed once, whenever schema files are missing or you want to target a different version than what you already have. It does the following:
 * Downloads all the extension schema files of a specific version
