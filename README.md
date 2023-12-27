@@ -1,3 +1,7 @@
+# Note: This project is now archived. Its features and much more have been moved into [Dynatrace Extensions for VSCode](https://github.com/dynatrace-extensions/dynatrace-extensions-vscode)
+
+---
+
 # Extensions 2.0 Project Starter
 
 ## About
